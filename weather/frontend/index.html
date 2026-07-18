@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WeatherVerse — Premium Weather Experience</title>
+<meta name="description" content="WeatherVerse — a premium, animated real-time weather app." />
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛅</text></svg>" />
+
+<!-- Google Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-sunny">
+
+<!-- Ambient animated layers (populated by animations.js) -->
+<div id="bgGradient" class="bg-layer"></div>
+<div id="starLayer" class="bg-layer"></div>
+<div id="cloudLayer" class="bg-layer"></div>
+<div id="rainLayer" class="bg-layer"></div>
+<div id="snowLayer" class="bg-layer"></div>
+<div id="particleLayer" class="bg-layer"></div>
+
+<!-- ============================================================ -->
+<!-- Loading Screen -->
+<!-- ============================================================ -->
+<section id="loadingScreen" class="screen">
+  <div class="loader-box">
+    <div class="loader-icon">⛅</div>
+    <h1 class="loader-title">WeatherVerse</h1>
+    <p class="loader-sub">Calibrating the skies…</p>
+    <div class="loader-bar"><span></span></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Authentication Screen -->
+<!-- ============================================================ -->
+<section id="authScreen" class="screen hidden">
+  <div class="glass-card auth-card">
+    <div class="mascot-area">
+      <div class="mascot">☁️</div>
+      <p class="mascot-speech">Welcome to WeatherVerse 👋</p>
+    </div>
+
+    <div class="tab-row">
+      <button id="loginTab" class="tab-btn active" type="button">Login</button>
+      <button id="signupTab" class="tab-btn" type="button">Sign Up</button>
+    </div>
+
+    <div class="auth-message" aria-live="polite"></div>
+
+    <form id="loginForm" class="auth-form" novalidate>
+      <h2>Welcome Back</h2>
+      <div class="input-wrap">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+      </div>
+      <div class="input-wrap">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
+        <button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Toggle password visibility"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <label class="remember-row">
+        <input type="checkbox" id="rememberMe"> <span>Remember me</span>
+      </label>
+      <button type="submit" class="primary-btn">Login <i class="fa-solid fa-arrow-right"></i></button>
+      <p class="switch-line">New here? <a href="#" id="goSignup">Create an account</a></p>
+    </form>
+
+    <form id="signupForm" class="auth-form hidden" novalidate>
+      <h2>Create Account</h2>
+      <div class="input-wrap">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="signupName" placeholder="Full Name" autocomplete="name" required>
+      </div>
+      <div class="input-wrap">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="signupEmail" placeholder="Email" autocomplete="email" required>
+      </div>
+      <div class="input-wrap">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="signupPassword" placeholder="Password (min 8 characters)" autocomplete="new-password" required>
+        <button type="button" class="pw-toggle" data-target="signupPassword" aria-label="Toggle password visibility"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <div class="input-wrap">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="primary-btn">Create Account <i class="fa-solid fa-arrow-right"></i></button>
+      <p class="switch-line">Already have an account? <a href="#" id="goLogin">Login</a></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Location Permission Screen -->
+<!-- ============================================================ -->
+<section id="locationScreen" class="screen hidden">
+  <div class="glass-card location-card">
+    <i class="fa-solid fa-location-dot location-icon"></i>
+    <h2>Find Your Sky</h2>
+    <p>Allow location access for hyper-local, accurate weather — or search any city on Earth.</p>
+    <button id="allowLocationBtn" class="primary-btn"><i class="fa-solid fa-location-crosshairs"></i> Use My Location</button>
+    <div class="divider"><span>OR</span></div>
+    <div class="city-search-row">
+      <input id="cityInput" placeholder="Search a city (e.g. Tokyo)" autocomplete="off">
+      <button id="searchCityBtn" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <ul id="citySuggestions" class="city-suggestions hidden"></ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Weather Dashboard -->
+<!-- ============================================================ -->
+<section id="dashboard" class="screen hidden">
+
+  <header class="dash-header">
+    <div class="loc-info">
+      <i class="fa-solid fa-location-dot"></i>
+      <div>
+        <h1 id="cityName">—</h1>
+        <p id="countryName">—</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="unit-toggle" id="unitToggle">
+        <button class="unit-btn active" data-unit="C">°C</button>
+        <button class="unit-btn" data-unit="F">°F</button>
+      </div>
+      <button id="changeLocationBtn" class="icon-btn" title="Change location"><i class="fa-solid fa-map-location-dot"></i></button>
+      <button id="refreshBtn" class="icon-btn" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      <button id="logoutBtn" class="icon-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </header>
+
+  <section class="hero-section">
+    <div id="weatherIcon" class="weather-icon"><i class="fa-solid fa-sun"></i></div>
+    <h1 id="temperature">--°</h1>
+    <h3 id="weatherDescription">—</h3>
+    <p id="feelsLikeLine">Feels like --°</p>
+    <p id="lastUpdated" class="last-updated">—</p>
+  </section>
+
+  <section class="weather-cards">
+    <div class="weather-card">
+      <i class="fa-solid fa-droplet"></i>
+      <h4>Humidity</h4>
+      <p id="humidity">--</p>
+    </div>
+    <div class="weather-card">
+      <i class="fa-solid fa-wind"></i>
+      <h4>Wind</h4>
+      <p id="wind">--</p>
+    </div>
+    <div class="weather-card">
+      <i class="fa-solid fa-cloud-rain"></i>
+      <h4>Rain Chance</h4>
+      <p id="rain">--</p>
+    </div>
+    <div class="weather-card">
+      <i class="fa-solid fa-temperature-half"></i>
+      <h4>Feels Like</h4>
+      <p id="feelsLike">--</p>
+    </div>
+  </section>
+
+  <section class="forecast-section">
+    <h3 class="section-title"><i class="fa-solid fa-calendar-days"></i> 7-Day Forecast</h3>
+    <div id="forecastRow" class="forecast-row"></div>
+  </section>
+
+</section>
+
+<!-- Toast -->
+<div id="toast" class="toast-container" aria-live="polite"></div>
+
+<!-- ============================================================ -->
+<!-- Scripts -->
+<!-- ============================================================ -->
+<script src="auth.js"></script>
+<script src="weather.js"></script>
+<script src="animations.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
