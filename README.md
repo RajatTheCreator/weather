@@ -19,13 +19,9 @@ A modern and responsive weather application that provides real-time weather upda
 - JavaScript
 - Weather API
 
-## 📸 Screenshots
-
-(Add screenshots here)
-
 ## 🚀 Live Demo
 
-(Add your Vercel/Netlify URL)
+https://weather-lk94.vercel.app/
 
 ## 📄 License
 
